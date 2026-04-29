@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+nvd-mirror.toml
+mirror/
+cves/
+state/
+working/
+*.log

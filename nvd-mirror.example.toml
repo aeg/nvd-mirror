@@ -1,0 +1,10 @@
+[default]
+mirror_path = "./mirror"
+api_key = ""
+sleep_with_api_key = 6.0
+sleep_without_api_key = 6.0
+results_per_page = 500
+http_timeout = 30
+http_retries = 3
+retry_backoff = 5.0
+user_agent = "nvd-mirror"
