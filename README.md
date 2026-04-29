@@ -16,7 +16,7 @@ It is designed for long-running local mirrors where interrupted jobs must be res
 
 ## Requirements
 
-- Python 3.9 or later
+- Python 3.10 or later
 - `requests`
 - `tomli` on Python versions earlier than 3.11
 
