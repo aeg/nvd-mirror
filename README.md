@@ -115,6 +115,18 @@ verbose: saved file cves/2025/CVE-2025-0001.json
 
 `checkpoint.json` is used for resuming interrupted runs. It is removed after successful completion.
 
+## Source Layout
+
+```text
+nvd_mirror.py          # CLI wrapper
+nvd_mirror/
+  api.py               # NVD API client and API errors
+  cli.py               # Argument parser and main()
+  config.py            # TOML configuration loading and validation
+  mirror.py            # Init, sync, resume, and status runner
+  storage.py           # State, checkpoint, working files, and CVE writes
+```
+
 ## Tests
 
 The repository includes pytest tests for configuration loading, init resume behavior, sync state handling, verbose logging, retry behavior, and CVE file output.
