@@ -9,3 +9,5 @@ cves/
 state/
 working/
 *.log
+
+.vscode/

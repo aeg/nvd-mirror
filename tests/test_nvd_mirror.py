@@ -15,7 +15,7 @@ import nvd_mirror
 @pytest.fixture(autouse=True)
 def isolate_default_config(monkeypatch, tmp_path: Path):
     monkeypatch.setattr(
-        nvd_mirror,
+        nvd_mirror.config,
         "default_config_path",
         lambda: tmp_path / "missing-nvd-mirror.toml",
     )
