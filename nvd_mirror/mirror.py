@@ -3,12 +3,11 @@ from __future__ import annotations
 import json
 import time
 from datetime import datetime, timedelta
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any
 
 import requests
 
-from .api import NvdApiClient, NvdApiError
-from .config import AppConfig
+from .api import NvdApiError
 from .constants import INITIAL_PUBLISH_START, MAX_WINDOW_DAYS
 from .storage import (
     clear_checkpoint,
@@ -27,16 +26,27 @@ from .storage import (
 )
 from .time_utils import isoformat_z, parse_datetime, utc_now
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from .api import NvdApiClient
+    from .config import AppConfig
+
+HTTP_TOO_MANY_REQUESTS = 429
+HTTP_SERVER_ERROR_MIN = 500
+HTTP_SERVER_ERROR_MAX = 599
+
 
 class MirrorRunner:
     def __init__(
         self,
         config: AppConfig,
         api_client: NvdApiClient,
+        *,
         now_fn: Callable[[], datetime] = utc_now,
         output: Callable[[str], None] = print,
         verbose: bool = False,
-    ):
+    ) -> None:
         self.config = config
         self.api_client = api_client
         self.now_fn = now_fn
@@ -52,7 +62,7 @@ class MirrorRunner:
         self.verbose_output(
             "response "
             f"totalResults={payload.get('totalResults')} "
-            f"vulnerabilities={len(payload.get('vulnerabilities', []))}"
+            f"vulnerabilities={len(payload.get('vulnerabilities', []))}",
         )
 
     def save_payload(self, payload: dict[str, Any]) -> int:
@@ -73,7 +83,7 @@ class MirrorRunner:
                 if not self.is_retryable_error(exc) or attempt >= max_attempts:
                     raise
                 self.verbose_output(
-                    f"retryable error {type(exc).__name__}: {exc}"
+                    f"retryable error {type(exc).__name__}: {exc}",
                 )
                 delay = self.config.retry_backoff * attempt
                 self.verbose_output(f"sleeping {delay:.1f}s before retry")
@@ -86,12 +96,12 @@ class MirrorRunner:
             return True
         if isinstance(exc, NvdApiError):
             return (
-                exc.status_code == 429
-                or 500 <= exc.status_code <= 599
+                exc.status_code == HTTP_TOO_MANY_REQUESTS
+                or HTTP_SERVER_ERROR_MIN <= exc.status_code <= HTTP_SERVER_ERROR_MAX
             )
         return False
 
-    def run_init(self, run_end: Optional[datetime] = None) -> int:
+    def run_init(self, run_end: datetime | None = None) -> int:
         checkpoint = maybe_load_checkpoint(self.config)
         if checkpoint and checkpoint.get("mode") == "init":
             return self.resume_init(checkpoint)
@@ -110,7 +120,7 @@ class MirrorRunner:
             "run_end": isoformat_z(end_at),
             "next_pub_start": isoformat_z(init_start),
             "current_pub_end": isoformat_z(
-                min(init_start + timedelta(days=MAX_WINDOW_DAYS), end_at)
+                min(init_start + timedelta(days=MAX_WINDOW_DAYS), end_at),
             ),
             "start_index": 0,
             "results_per_page": self.config.results_per_page,
@@ -170,7 +180,7 @@ class MirrorRunner:
                     "startIndex": checkpoint["start_index"],
                 }
                 self.verbose_output(
-                    f"request {json.dumps(params, sort_keys=True)}"
+                    f"request {json.dumps(params, sort_keys=True)}",
                 )
                 page_started = time.monotonic()
                 payload = self.fetch_cves(params)
@@ -187,7 +197,8 @@ class MirrorRunner:
                 checkpoint["saved_total"] += saved_count
                 checkpoint["window_saved_total"] += saved_count
                 checkpoint["avg_page_seconds"] = self._update_avg(
-                    checkpoint.get("avg_page_seconds", 0.0), elapsed
+                    checkpoint.get("avg_page_seconds", 0.0),
+                    elapsed,
                 )
                 save_checkpoint(self.config, checkpoint)
                 self.output(render_status_line(checkpoint))
@@ -196,7 +207,7 @@ class MirrorRunner:
                     next_pub_start = window_end
                     checkpoint["next_pub_start"] = isoformat_z(next_pub_start)
                     checkpoint["current_pub_end"] = isoformat_z(
-                        min(next_pub_start + timedelta(days=MAX_WINDOW_DAYS), run_end)
+                        min(next_pub_start + timedelta(days=MAX_WINDOW_DAYS), run_end),
                     )
                     checkpoint["start_index"] = 0
                     checkpoint["window_saved_total"] = 0
@@ -204,20 +215,22 @@ class MirrorRunner:
                     save_checkpoint(self.config, checkpoint)
                     break
 
-    def run_sync(self, run_end: Optional[datetime] = None) -> int:
+    def run_sync(self, run_end: datetime | None = None) -> int:
         checkpoint = maybe_load_checkpoint(self.config)
         if checkpoint:
             if checkpoint.get("mode") == "sync":
                 return self.resume_sync(checkpoint)
             if checkpoint.get("mode") == "init":
-                raise ValueError(
-                    "initialization is not complete; run --init to resume initialization before sync"
+                message = (
+                    "initialization is not complete; "
+                    "run --init to resume initialization before sync"
                 )
+                raise ValueError(message)
 
         state = load_state(self.config)
         if not state.get("init_completed"):
             raise ValueError(
-                "initialization is not complete; run --init before sync"
+                "initialization is not complete; run --init before sync",
             )
         if "next_sync_from" not in state:
             raise ValueError("state file is required before sync")
@@ -264,7 +277,7 @@ class MirrorRunner:
                 "startIndex": checkpoint["start_index"],
             }
             self.verbose_output(
-                f"request {json.dumps(params, sort_keys=True)}"
+                f"request {json.dumps(params, sort_keys=True)}",
             )
             page_started = time.monotonic()
             payload = self.fetch_cves(params)
@@ -280,7 +293,8 @@ class MirrorRunner:
             checkpoint["start_index"] += saved_count
             checkpoint["saved_total"] += saved_count
             checkpoint["avg_page_seconds"] = self._update_avg(
-                checkpoint.get("avg_page_seconds", 0.0), elapsed
+                checkpoint.get("avg_page_seconds", 0.0),
+                elapsed,
             )
             save_checkpoint(self.config, checkpoint)
             self.output(render_status_line(checkpoint))
@@ -292,10 +306,9 @@ class MirrorRunner:
         checkpoint = load_checkpoint(self.config)
         if checkpoint["mode"] == "sync":
             return self.resume_sync(checkpoint)
-        elif checkpoint["mode"] == "init":
+        if checkpoint["mode"] == "init":
             return self.resume_init(checkpoint)
-        else:
-            raise ValueError(f'unsupported checkpoint mode: {checkpoint["mode"]}')
+        raise ValueError(f"unsupported checkpoint mode: {checkpoint['mode']}")
 
     def run_status(self) -> int:
         checkpoint = load_checkpoint(self.config)

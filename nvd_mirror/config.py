@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
 try:
     import tomllib
@@ -17,11 +16,14 @@ from .constants import (
     DEFAULT_RETRY_BACKOFF,
 )
 
+if TYPE_CHECKING:
+    import argparse
+
 
 @dataclass
 class AppConfig:
     mirror_path: Path
-    api_key: Optional[str]
+    api_key: str | None
     sleep_with_api_key: float
     sleep_without_api_key: float
     results_per_page: int
@@ -68,8 +70,8 @@ def config_value(
     args: argparse.Namespace,
     config_values: dict[str, Any],
     name: str,
-    default: Any,
-) -> Any:
+    default: object,
+) -> object:
     value = getattr(args, name)
     if value is not None:
         return value
@@ -92,10 +94,10 @@ def resolve_config(args: argparse.Namespace) -> AppConfig:
         mirror_path=Path(mirror_path_raw),
         api_key=api_key,
         sleep_with_api_key=float(
-            config_value(args, config_values, "sleep_with_api_key", "6.0")
+            config_value(args, config_values, "sleep_with_api_key", "6.0"),
         ),
         sleep_without_api_key=float(
-            config_value(args, config_values, "sleep_without_api_key", "6.0")
+            config_value(args, config_values, "sleep_without_api_key", "6.0"),
         ),
         results_per_page=int(
             config_value(
@@ -103,7 +105,7 @@ def resolve_config(args: argparse.Namespace) -> AppConfig:
                 config_values,
                 "results_per_page",
                 str(DEFAULT_RESULTS_PER_PAGE),
-            )
+            ),
         ),
         http_timeout=float(config_value(args, config_values, "http_timeout", "30")),
         http_retries=int(
@@ -112,7 +114,7 @@ def resolve_config(args: argparse.Namespace) -> AppConfig:
                 config_values,
                 "http_retries",
                 str(DEFAULT_HTTP_RETRIES),
-            )
+            ),
         ),
         retry_backoff=float(
             config_value(
@@ -120,7 +122,7 @@ def resolve_config(args: argparse.Namespace) -> AppConfig:
                 config_values,
                 "retry_backoff",
                 str(DEFAULT_RETRY_BACKOFF),
-            )
+            ),
         ),
         user_agent=args.user_agent
         or config_values.get("user_agent", "nvd-api-client-v2"),

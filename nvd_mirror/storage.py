@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import json
 import shutil
-from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
-from .config import AppConfig
 from .constants import DEFAULT_RESULTS_PER_PAGE
 from .time_utils import format_seconds
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from .config import AppConfig
 
 
 def ensure_directories(config: AppConfig) -> None:
@@ -53,7 +56,7 @@ def save_state(config: AppConfig, state: dict[str, Any]) -> None:
     atomic_write_json(state_file(config), state)
 
 
-def update_state(config: AppConfig, **updates: Any) -> dict[str, Any]:
+def update_state(config: AppConfig, **updates: object) -> dict[str, Any]:
     state = load_state(config)
     for key, value in updates.items():
         if value is None:
@@ -71,7 +74,7 @@ def load_checkpoint(config: AppConfig) -> dict[str, Any]:
     return load_json(path)
 
 
-def maybe_load_checkpoint(config: AppConfig) -> Optional[dict[str, Any]]:
+def maybe_load_checkpoint(config: AppConfig) -> dict[str, Any] | None:
     path = checkpoint_file(config)
     if not path.exists():
         return None
@@ -101,7 +104,11 @@ def prepare_working_dir(config: AppConfig, metadata: dict[str, Any]) -> None:
     atomic_write_json(path / "metadata.json", metadata)
 
 
-def save_working_page(config: AppConfig, page_number: int, payload: dict[str, Any]) -> None:
+def save_working_page(
+    config: AppConfig,
+    page_number: int,
+    payload: dict[str, Any],
+) -> None:
     path = working_dir(config)
     path.mkdir(parents=True, exist_ok=True)
     atomic_write_json(path / f"page-{page_number:06d}.json", payload)
@@ -112,7 +119,7 @@ def save_cves(config: AppConfig, payload: dict[str, Any]) -> list[Path]:
     for item in payload.get("vulnerabilities", []):
         cve = item["cve"]
         year = cve["id"][4:8]
-        target = config.mirror_path / "cves" / year / f'{cve["id"]}.json'
+        target = config.mirror_path / "cves" / year / f"{cve['id']}.json"
         atomic_write_json(target, cve)
         saved_paths.append(target)
     return saved_paths
@@ -131,10 +138,7 @@ def render_status_line(checkpoint: dict[str, Any]) -> str:
     else:
         total = checkpoint.get("total_results") or 0
         saved = checkpoint.get("saved_total", 0)
-    if total:
-        progress = min(saved / total * 100.0, 100.0)
-    else:
-        progress = 0.0
+    progress = min(saved / total * 100.0, 100.0) if total else 0.0
 
     remaining = max(total - saved, 0)
     results_per_page = checkpoint.get("results_per_page", DEFAULT_RESULTS_PER_PAGE)
@@ -143,12 +147,13 @@ def render_status_line(checkpoint: dict[str, Any]) -> str:
 
     if checkpoint["mode"] == "init":
         scope = (
-            f'window={checkpoint["next_pub_start"]}..{checkpoint["current_pub_end"]}'
+            f"window={checkpoint['next_pub_start']}..{checkpoint['current_pub_end']}"
         )
     else:
-        scope = f'range={checkpoint["range_start"]}..{checkpoint["range_end"]}'
+        scope = f"range={checkpoint['range_start']}..{checkpoint['range_end']}"
 
     return (
-        f'mode={checkpoint["mode"]} {scope} '
-        f'saved={saved}/{total} progress={progress:.1f}% eta={format_seconds(eta_seconds)}'
+        f"mode={checkpoint['mode']} {scope} "
+        f"saved={saved}/{total} progress={progress:.1f}% "
+        f"eta={format_seconds(eta_seconds)}"
     )

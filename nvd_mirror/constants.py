@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-
 API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 DEFAULT_RESULTS_PER_PAGE = 2000
 MAX_WINDOW_DAYS = 120

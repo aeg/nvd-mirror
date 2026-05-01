@@ -4,12 +4,18 @@ import argparse
 import sys
 import traceback
 from pathlib import Path
-from typing import Callable, Optional
+from typing import TYPE_CHECKING
 
 from .api import NvdApiClient
-from .config import AppConfig, resolve_config
+from .config import resolve_config
 from .mirror import MirrorRunner
 from .time_utils import parse_datetime, utc_now
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from datetime import datetime
+
+    from .config import AppConfig
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -29,16 +35,23 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--http-retries", type=int)
     parser.add_argument("--retry-backoff", type=float)
     parser.add_argument("--user-agent")
-    parser.add_argument("--run-end", help="fixed run end datetime for testing or batch control")
-    parser.add_argument("--verbose", action="store_true", help="show verbose progress details")
+    parser.add_argument(
+        "--run-end",
+        help="fixed run end datetime for testing or batch control",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="show verbose progress details",
+    )
     return parser
 
 
 def main(
-    argv: Optional[list[str]] = None,
+    argv: list[str] | None = None,
     *,
-    api_client_factory: Optional[Callable[[AppConfig], NvdApiClient]] = None,
-    now_fn=utc_now,
+    api_client_factory: Callable[[AppConfig], NvdApiClient] | None = None,
+    now_fn: Callable[[], datetime] = utc_now,
 ) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -62,9 +75,9 @@ def main(
         if args.resume:
             return runner.run_resume()
         return runner.run_status()
-    except Exception as exc:  # pragma: no cover - CLI guard
-        print(str(exc), file=sys.stderr)
+    except Exception as exc:  # noqa: BLE001  # pragma: no cover - CLI guard
+        sys.stderr.write(f"{exc}\n")
         if getattr(args, "verbose", False):
-            print("verbose: exception details:", file=sys.stderr)
+            sys.stderr.write("verbose: exception details:\n")
             traceback.print_exception(exc, file=sys.stderr)
         return 1

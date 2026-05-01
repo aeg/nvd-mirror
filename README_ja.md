@@ -26,19 +26,20 @@
 ## 要件
 
 - Python 3.10 以上
-- `requests`
-- Python 3.11 未満では `tomli`
+- `uv`
 
-依存関係のインストール:
+`uv` が未インストールの場合は、先にインストールします。
 
 ```bash
-python3 -m pip install -r requirements.txt
+python3 -m pip install uv
 ```
 
-開発とテスト用:
+プロジェクトの依存関係は `pyproject.toml` に定義しています。`uv run` を使うと、コマンド実行時にローカル環境が自動的に作成または更新されます。
+
+開発ツールとテスト用の依存関係は、`dev` dependency group を使います。
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
+uv sync --group dev
 ```
 
 ## クイックスタート
@@ -67,25 +68,25 @@ user_agent = "nvd-mirror"
 ミラーを初期化します。
 
 ```bash
-python3 nvd-mirror.py --init --path ./mirror
+uv run python nvd-mirror.py --init --path ./mirror
 ```
 
 差分同期を実行します。
 
 ```bash
-python3 nvd-mirror.py --sync --path ./mirror
+uv run python nvd-mirror.py --sync --path ./mirror
 ```
 
 現在の checkpoint 状態を表示します。
 
 ```bash
-python3 nvd-mirror.py --status --path ./mirror
+uv run python nvd-mirror.py --status --path ./mirror
 ```
 
 中断された処理を明示的に再開します。
 
 ```bash
-python3 nvd-mirror.py --resume --path ./mirror
+uv run python nvd-mirror.py --resume --path ./mirror
 ```
 
 ## Verbose Mode
@@ -93,7 +94,7 @@ python3 nvd-mirror.py --resume --path ./mirror
 `--verbose` を付けると、request と保存処理の詳細を表示します。
 
 ```bash
-python3 nvd-mirror.py --sync --verbose --path ./mirror
+uv run python nvd-mirror.py --sync --verbose --path ./mirror
 ```
 
 出力例:
@@ -141,7 +142,14 @@ nvd_mirror/
 設定読み込み、init resume、sync state、verbose logging、retry、CVE ファイル出力に対する pytest テストを含んでいます。
 
 ```bash
-python3 -m pytest tests/test_nvd_mirror.py
+uv run --group dev pytest tests/test_nvd_mirror.py
+```
+
+Ruff のチェックを実行します。
+
+```bash
+uv run --group dev ruff check --config ruff.toml .
+uv run --group dev ruff format --check --config ruff.toml .
 ```
 
 ## 注意点

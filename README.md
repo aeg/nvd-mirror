@@ -26,19 +26,21 @@ It is designed for long-running local mirrors where interrupted jobs must be res
 ## Requirements
 
 - Python 3.10 or later
-- `requests`
-- `tomli` on Python versions earlier than 3.11
+- `uv`
 
-Install dependencies:
+Install `uv` if it is not already available:
 
 ```bash
-python3 -m pip install -r requirements.txt
+python3 -m pip install uv
 ```
 
-For development and tests:
+Project dependencies are defined in `pyproject.toml`. `uv run` creates or
+updates the local environment automatically when you run a command.
+
+For development tools and tests, use the `dev` dependency group:
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
+uv sync --group dev
 ```
 
 ## Quick Start
@@ -67,25 +69,25 @@ user_agent = "nvd-mirror"
 Initialize a mirror:
 
 ```bash
-python3 nvd-mirror.py --init --path ./mirror
+uv run python nvd-mirror.py --init --path ./mirror
 ```
 
 Run an incremental sync:
 
 ```bash
-python3 nvd-mirror.py --sync --path ./mirror
+uv run python nvd-mirror.py --sync --path ./mirror
 ```
 
 Show current checkpoint status:
 
 ```bash
-python3 nvd-mirror.py --status --path ./mirror
+uv run python nvd-mirror.py --status --path ./mirror
 ```
 
 Resume an interrupted job explicitly:
 
 ```bash
-python3 nvd-mirror.py --resume --path ./mirror
+uv run python nvd-mirror.py --resume --path ./mirror
 ```
 
 ## Verbose Mode
@@ -93,7 +95,7 @@ python3 nvd-mirror.py --resume --path ./mirror
 Use `--verbose` to print request and save details:
 
 ```bash
-python3 nvd-mirror.py --sync --verbose --path ./mirror
+uv run python nvd-mirror.py --sync --verbose --path ./mirror
 ```
 
 Example output:
@@ -141,7 +143,14 @@ nvd_mirror/
 The repository includes pytest tests for configuration loading, init resume behavior, sync state handling, verbose logging, retry behavior, and CVE file output.
 
 ```bash
-python3 -m pytest tests/test_nvd_mirror.py
+uv run --group dev pytest tests/test_nvd_mirror.py
+```
+
+Run Ruff checks:
+
+```bash
+uv run --group dev ruff check --config ruff.toml .
+uv run --group dev ruff format --check --config ruff.toml .
 ```
 
 ## Notes
