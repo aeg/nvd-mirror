@@ -1,5 +1,14 @@
 # nvd-mirror
 
+<table>
+	<thead>
+		<tr>
+			<th style="text-align:center">English</th>
+			<th style="text-align:center"><a href="README_ja.md">日本語</a></th>
+		</tr>
+	</thead>
+</table>
+
 `nvd-mirror` is a small Python CLI for mirroring CVE records from the NVD CVE API 2.0 into local JSON files.
 
 It is designed for long-running local mirrors where interrupted jobs must be resumable.
