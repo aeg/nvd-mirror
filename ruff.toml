@@ -1,0 +1,38 @@
+[format]
+docstring-code-format = true
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "D1",    # undocumented
+    "D203",  # one blank line before class
+    "D213",  # multi-line summary second line
+    "COM812", # trailing comma handled by formatter
+    "EM101", # exception message string literal
+    "EM102", # exception message f-string
+    "TD001", # invalid todo tag
+    "TD002", # missing todo author
+    "TD003", # missing todo link
+    "TRY003", # exception messages are concise enough for this CLI
+    "PD011", # pandas use of dot values
+    "PERF203", # no longer relevant on supported Python versions
+]
+unfixable = [
+    "F401", # unused import
+    "F841", # unused variable
+]
+
+logger-objects = ["src.library.logger.LOGGER"]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ANN",     # pytest fixtures and helpers are intentionally lightweight
+    "ARG",     # fake objects keep production-like method signatures
+    "INP001",  # tests do not need to be a package
+    "PLR2004", # literals make test expectations clearer
+    "S101",    # pytest uses assert statements
+    "S108",    # hard-coded temp paths are test data
+]
+
+[lint.pylint]
+max-args = 6

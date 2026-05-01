@@ -54,7 +54,7 @@ class FlakyApiClient:
         self.calls += 1
         if self.calls == 1:
             raise nvd_mirror.requests.exceptions.ChunkedEncodingError(
-                "Response ended prematurely"
+                "Response ended prematurely",
             )
         return self.page
 
@@ -72,8 +72,13 @@ def build_page(total_results, vulnerabilities):
 
 
 def iso(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace(
-        "+00:00", "Z"
+    return (
+        dt.astimezone(timezone.utc)
+        .isoformat(timespec="milliseconds")
+        .replace(
+            "+00:00",
+            "Z",
+        )
     )
 
 
@@ -100,7 +105,7 @@ def test_init_command_saves_cves_and_records_state(tmp_path: Path):
                     "lastModified": "2026-01-03T00:00:00.000",
                 },
             ],
-        )
+        ),
     }
 
     exit_code = nvd_mirror.main(
@@ -140,9 +145,9 @@ def test_verbose_mode_reports_request_and_saved_count(tmp_path: Path, capsys):
                     "id": "CVE-2026-0201",
                     "published": "2026-01-01T00:00:00.000",
                     "lastModified": "2026-01-02T00:00:00.000",
-                }
+                },
             ],
-        )
+        ),
     }
 
     exit_code = nvd_mirror.main(
@@ -191,7 +196,8 @@ def test_verbose_mode_reports_exception_details(tmp_path: Path, capsys):
 
 
 def test_verbose_mode_retries_transient_chunked_response_error(
-    tmp_path: Path, capsys
+    tmp_path: Path,
+    capsys,
 ):
     page = build_page(
         1,
@@ -200,7 +206,7 @@ def test_verbose_mode_retries_transient_chunked_response_error(
                 "id": "CVE-2026-0301",
                 "published": "2026-01-01T00:00:00.000",
                 "lastModified": "2026-01-02T00:00:00.000",
-            }
+            },
         ],
     )
     flaky_client = FlakyApiClient(None, page)
@@ -239,8 +245,8 @@ def test_sync_command_uses_saved_sync_point(tmp_path: Path):
             {
                 "init_completed": True,
                 "next_sync_from": "2026-04-19T00:00:00.000Z",
-            }
-        )
+            },
+        ),
     )
 
     params = {
@@ -257,9 +263,9 @@ def test_sync_command_uses_saved_sync_point(tmp_path: Path):
                     "id": "CVE-2026-9999",
                     "published": "2026-01-01T00:00:00.000",
                     "lastModified": "2026-04-19T01:00:00.000",
-                }
+                },
             ],
-        )
+        ),
     }
 
     exit_code = nvd_mirror.main(
@@ -312,9 +318,9 @@ def test_init_command_resumes_saved_init_checkpoint(tmp_path: Path):
                     "id": "CVE-2026-2001",
                     "published": "2026-01-01T00:00:00.000",
                     "lastModified": "2026-04-19T01:59:59.000",
-                }
+                },
             ],
-        )
+        ),
     }
 
     exit_code = nvd_mirror.main(
@@ -353,8 +359,8 @@ def test_init_resume_uses_checkpoint_start_index(tmp_path: Path):
                 "saved_total": 2000,
                 "window_saved_total": 2000,
                 "avg_page_seconds": 1.0,
-            }
-        )
+            },
+        ),
     )
 
     params = {
@@ -371,9 +377,9 @@ def test_init_resume_uses_checkpoint_start_index(tmp_path: Path):
                     "id": "CVE-2026-2002",
                     "published": "2026-01-01T00:00:00.000",
                     "lastModified": "2026-04-19T01:59:59.000",
-                }
+                },
             ],
-        )
+        ),
     }
 
     exit_code = nvd_mirror.main(
@@ -428,7 +434,7 @@ def test_init_pages_until_all_results_are_saved(tmp_path: Path):
                     "id": "CVE-2026-3333",
                     "published": "2026-05-02T00:00:00.000",
                     "lastModified": "2026-05-03T00:00:00.000",
-                }
+                },
             ],
         ),
     }
@@ -468,8 +474,8 @@ def test_sync_command_fails_when_init_is_incomplete(tmp_path: Path, capsys):
                 "start_index": 0,
                 "results_per_page": 2000,
                 "saved_total": 0,
-            }
-        )
+            },
+        ),
     )
 
     exit_code = nvd_mirror.main(["--sync", "--path", str(tmp_path)])
@@ -495,8 +501,8 @@ def test_status_command_shows_progress_and_eta(tmp_path: Path, capsys):
                 "saved_total": 2000,
                 "started_at": "2026-04-19T02:00:00.000Z",
                 "avg_page_seconds": 18.0,
-            }
-        )
+            },
+        ),
     )
 
     exit_code = nvd_mirror.main(["--status", "--path", str(tmp_path)])
