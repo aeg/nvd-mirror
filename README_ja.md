@@ -67,25 +67,25 @@ user_agent = "nvd-mirror"
 ミラーを初期化します。
 
 ```bash
-python3 nvd_mirror.py --init --path ./mirror
+python3 nvd-mirror.py --init --path ./mirror
 ```
 
 差分同期を実行します。
 
 ```bash
-python3 nvd_mirror.py --sync --path ./mirror
+python3 nvd-mirror.py --sync --path ./mirror
 ```
 
 現在の checkpoint 状態を表示します。
 
 ```bash
-python3 nvd_mirror.py --status --path ./mirror
+python3 nvd-mirror.py --status --path ./mirror
 ```
 
 中断された処理を明示的に再開します。
 
 ```bash
-python3 nvd_mirror.py --resume --path ./mirror
+python3 nvd-mirror.py --resume --path ./mirror
 ```
 
 ## Verbose Mode
@@ -93,7 +93,7 @@ python3 nvd_mirror.py --resume --path ./mirror
 `--verbose` を付けると、request と保存処理の詳細を表示します。
 
 ```bash
-python3 nvd_mirror.py --sync --verbose --path ./mirror
+python3 nvd-mirror.py --sync --verbose --path ./mirror
 ```
 
 出力例:
@@ -127,7 +127,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
 ## ソースレイアウト
 
 ```text
-nvd_mirror.py          # CLI wrapper
+nvd-mirror.py          # CLI wrapper
 nvd_mirror/
   api.py               # NVD API client and API errors
   cli.py               # Argument parser and main()

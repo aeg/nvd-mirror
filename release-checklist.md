@@ -1,10 +1,10 @@
 # Release checklist
 
-Use this checklist before publishing `nvd_mirror.py` as a GitHub repository.
+Use this checklist before publishing `nvd-mirror.py` as a GitHub repository.
 
 ## Files
 
-- [ ] Copy `nvd_mirror.py` into the repository root.
+- [ ] Copy `nvd-mirror.py` into the repository root.
 - [ ] Copy `requirements.txt`.
 - [ ] Copy `requirements-dev.txt`.
 - [ ] Copy `nvd-mirror.example.toml`.
@@ -26,22 +26,22 @@ Use this checklist before publishing `nvd_mirror.py` as a GitHub repository.
 Run:
 
 ```bash
-python3 -m py_compile nvd_mirror.py
-python3 nvd_mirror.py --help
+python3 -m py_compile nvd-mirror.py
+python3 nvd-mirror.py --help
 python3 -m pytest tests/test_nvd_mirror.py
 ```
 
 Optional smoke tests:
 
 ```bash
-python3 nvd_mirror.py --init --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
-python3 nvd_mirror.py --status --path /tmp/nvd-mirror-test
+python3 nvd-mirror.py --init --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
+python3 nvd-mirror.py --status --path /tmp/nvd-mirror-test
 ```
 
 If the init completes:
 
 ```bash
-python3 nvd_mirror.py --sync --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
+python3 nvd-mirror.py --sync --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
 ```
 
 ## Suggested Defaults
