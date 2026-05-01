@@ -154,4 +154,6 @@ python3 -m pytest tests/test_nvd_mirror.py
 
 ## ライセンス
 
-このリポジトリで公開するライセンスを追加してください。現在のリポジトリライセンスを使う場合は、対応する `LICENSE` ファイルを GitHub リポジトリに含めてください。
+このプロジェクトは Apache License 2.0 の下で公開されています。詳細は [LICENSE](LICENSE) を参照してください。
+
+NVD API 由来データは NVD/NIST の利用条件・免責に従います。このプロジェクトは、NVD API 由来データの正確性、完全性、最新性を保証しません。
