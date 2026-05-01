@@ -1,5 +1,14 @@
 # nvd-mirror
 
+<table>
+	<thead>
+		<tr>
+			<th style="text-align:center">English</th>
+			<th style="text-align:center"><a href="README_ja.md">日本語</a></th>
+		</tr>
+	</thead>
+</table>
+
 `nvd-mirror` is a small Python CLI for mirroring CVE records from the NVD CVE API 2.0 into local JSON files.
 
 It is designed for long-running local mirrors where interrupted jobs must be resumable.
@@ -58,25 +67,25 @@ user_agent = "nvd-mirror"
 Initialize a mirror:
 
 ```bash
-python3 nvd_mirror.py --init --path ./mirror
+python3 nvd-mirror.py --init --path ./mirror
 ```
 
 Run an incremental sync:
 
 ```bash
-python3 nvd_mirror.py --sync --path ./mirror
+python3 nvd-mirror.py --sync --path ./mirror
 ```
 
 Show current checkpoint status:
 
 ```bash
-python3 nvd_mirror.py --status --path ./mirror
+python3 nvd-mirror.py --status --path ./mirror
 ```
 
 Resume an interrupted job explicitly:
 
 ```bash
-python3 nvd_mirror.py --resume --path ./mirror
+python3 nvd-mirror.py --resume --path ./mirror
 ```
 
 ## Verbose Mode
@@ -84,7 +93,7 @@ python3 nvd_mirror.py --resume --path ./mirror
 Use `--verbose` to print request and save details:
 
 ```bash
-python3 nvd_mirror.py --sync --verbose --path ./mirror
+python3 nvd-mirror.py --sync --verbose --path ./mirror
 ```
 
 Example output:
@@ -118,7 +127,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
 ## Source Layout
 
 ```text
-nvd_mirror.py          # CLI wrapper
+nvd-mirror.py          # CLI wrapper
 nvd_mirror/
   api.py               # NVD API client and API errors
   cli.py               # Argument parser and main()

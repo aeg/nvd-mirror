@@ -29,7 +29,7 @@ Leave empty unless a documentation page is published.
 
 ## Suggested Initial Repository Files
 
-- `nvd_mirror.py`
+- `nvd-mirror.py`
 - `README.md`
 - `requirements.txt`
 - `requirements-dev.txt`
