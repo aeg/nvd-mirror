@@ -78,6 +78,12 @@ Run an incremental sync:
 uv run python nvd-mirror.py --sync --path ./mirror
 ```
 
+Write a manifest for a completed mirror:
+
+```bash
+uv run python nvd-mirror.py --manifest --path ./mirror
+```
+
 Show current checkpoint status:
 
 ```bash
@@ -115,6 +121,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
   cves/
     2025/
       CVE-2025-0001.json
+  manifest.json
   state/
     state.json
     checkpoint.json
@@ -124,7 +131,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
       page-000000.json
 ```
 
-`checkpoint.json` is used for resuming interrupted runs. It is removed after successful completion.
+`manifest.json` records snapshot metadata, CVE counts, and checksums for completed mirrors. `checkpoint.json` is used for resuming interrupted runs. It is removed after successful completion.
 
 ## Source Layout
 
@@ -134,6 +141,7 @@ nvd_mirror/
   api.py               # NVD API client and API errors
   cli.py               # Argument parser and main()
   config.py            # TOML configuration loading and validation
+  manifest.py          # Snapshot manifest generation
   mirror.py            # Init, sync, resume, and status runner
   storage.py           # State, checkpoint, working files, and CVE writes
 ```

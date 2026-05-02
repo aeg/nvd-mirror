@@ -77,6 +77,12 @@ uv run python nvd-mirror.py --init --path ./mirror
 uv run python nvd-mirror.py --sync --path ./mirror
 ```
 
+完了済みミラーの manifest を生成します。
+
+```bash
+uv run python nvd-mirror.py --manifest --path ./mirror
+```
+
 現在の checkpoint 状態を表示します。
 
 ```bash
@@ -114,6 +120,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
   cves/
     2025/
       CVE-2025-0001.json
+  manifest.json
   state/
     state.json
     checkpoint.json
@@ -123,7 +130,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
       page-000000.json
 ```
 
-`checkpoint.json` は中断再開に使われます。正常終了後は削除されます。
+`manifest.json` は、完了済みミラーの snapshot metadata、CVE 件数、checksum を記録します。`checkpoint.json` は中断再開に使われます。正常終了後は削除されます。
 
 ## ソースレイアウト
 
@@ -133,6 +140,7 @@ nvd_mirror/
   api.py               # NVD API client and API errors
   cli.py               # Argument parser and main()
   config.py            # TOML configuration loading and validation
+  manifest.py          # Snapshot manifest generation
   mirror.py            # Init, sync, resume, and status runner
   storage.py           # State, checkpoint, working files, and CVE writes
 ```

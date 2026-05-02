@@ -25,6 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     modes.add_argument("--sync", action="store_true", help="sync changes")
     modes.add_argument("--resume", action="store_true", help="resume last run")
     modes.add_argument("--status", action="store_true", help="show progress")
+    modes.add_argument("--manifest", action="store_true", help="write manifest.json")
     parser.add_argument("--path", type=Path, help="mirror path")
     parser.add_argument("--config", type=Path, help="path to TOML config file")
     parser.add_argument("--api-key", help="NVD API key")
@@ -74,6 +75,8 @@ def main(
             return runner.run_sync(run_end=run_end)
         if args.resume:
             return runner.run_resume()
+        if args.manifest:
+            return runner.run_manifest()
         return runner.run_status()
     except Exception as exc:  # noqa: BLE001  # pragma: no cover - CLI guard
         sys.stderr.write(f"{exc}\n")

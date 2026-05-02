@@ -22,6 +22,7 @@ from .constants import (
     INITIAL_PUBLISH_START,
     MAX_WINDOW_DAYS,
 )
+from .manifest import build_manifest, manifest_file, write_manifest
 from .mirror import MirrorRunner
 from .storage import (
     atomic_write_json,
@@ -59,6 +60,7 @@ __all__ = [
     "NvdApiClient",
     "NvdApiError",
     "atomic_write_json",
+    "build_manifest",
     "build_parser",
     "checkpoint_file",
     "clear_checkpoint",
@@ -73,6 +75,7 @@ __all__ = [
     "load_state",
     "load_toml_config",
     "main",
+    "manifest_file",
     "maybe_load_checkpoint",
     "page_count",
     "parse_datetime",
@@ -90,4 +93,5 @@ __all__ = [
     "utc_now",
     "validate_config",
     "working_dir",
+    "write_manifest",
 ]

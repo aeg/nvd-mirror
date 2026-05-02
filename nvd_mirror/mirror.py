@@ -9,6 +9,7 @@ import requests
 
 from .api import NvdApiError
 from .constants import INITIAL_PUBLISH_START, MAX_WINDOW_DAYS
+from .manifest import write_manifest
 from .storage import (
     clear_checkpoint,
     clear_working_dir,
@@ -313,6 +314,11 @@ class MirrorRunner:
     def run_status(self) -> int:
         checkpoint = load_checkpoint(self.config)
         self.output(render_status_line(checkpoint))
+        return 0
+
+    def run_manifest(self) -> int:
+        path = write_manifest(self.config, self.now_fn())
+        self.output(f"wrote manifest {path}")
         return 0
 
     @staticmethod
