@@ -1,0 +1,35 @@
+name: Ruff
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run Ruff check
+        run: uv run --group dev ruff check --config ruff.toml .
+
+      - name: Run Ruff format check
+        run: uv run --group dev ruff format --check --config ruff.toml .
