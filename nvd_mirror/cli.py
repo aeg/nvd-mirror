@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import sys
 import traceback
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -26,6 +27,11 @@ def build_parser() -> argparse.ArgumentParser:
     modes.add_argument("--resume", action="store_true", help="resume last run")
     modes.add_argument("--status", action="store_true", help="show progress")
     modes.add_argument("--manifest", action="store_true", help="write manifest.json")
+    modes.add_argument(
+        "--verify-manifest",
+        action="store_true",
+        help="verify manifest.json against mirror files",
+    )
     parser.add_argument("--path", type=Path, help="mirror path")
     parser.add_argument("--config", type=Path, help="path to TOML config file")
     parser.add_argument("--api-key", help="NVD API key")
@@ -69,15 +75,18 @@ def main(
 
         run_end = parse_datetime(args.run_end) if args.run_end else None
 
+        action: Callable[[], int] = runner.run_status
         if args.init:
-            return runner.run_init(run_end=run_end)
-        if args.sync:
-            return runner.run_sync(run_end=run_end)
-        if args.resume:
-            return runner.run_resume()
-        if args.manifest:
-            return runner.run_manifest()
-        return runner.run_status()
+            action = partial(runner.run_init, run_end=run_end)
+        elif args.sync:
+            action = partial(runner.run_sync, run_end=run_end)
+        elif args.resume:
+            action = runner.run_resume
+        elif args.manifest:
+            action = runner.run_manifest
+        elif args.verify_manifest:
+            action = runner.run_verify_manifest
+        return action()
     except Exception as exc:  # noqa: BLE001  # pragma: no cover - CLI guard
         sys.stderr.write(f"{exc}\n")
         if getattr(args, "verbose", False):

@@ -83,6 +83,12 @@ uv run python nvd-mirror.py --sync --path ./mirror
 uv run python nvd-mirror.py --manifest --path ./mirror
 ```
 
+手動でダウンロード・展開した snapshot を検証します。
+
+```bash
+uv run python nvd-mirror.py --verify-manifest --path ./mirror
+```
+
 現在の checkpoint 状態を表示します。
 
 ```bash
@@ -130,7 +136,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
       page-000000.json
 ```
 
-`manifest.json` は、完了済みミラーの snapshot metadata、CVE 件数、checksum を記録します。`checkpoint.json` は中断再開に使われます。正常終了後は削除されます。
+`manifest.json` は、完了済みミラーの snapshot metadata、CVE 件数、checksum を記録します。手動で snapshot をダウンロード・展開した後に `--verify-manifest` を使うと、`cves/` と `state/state.json` が manifest と一致することを確認できます。`checkpoint.json` は中断再開に使われます。正常終了後は削除されます。
 
 ## ソースレイアウト
 

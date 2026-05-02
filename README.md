@@ -84,6 +84,12 @@ Write a manifest for a completed mirror:
 uv run python nvd-mirror.py --manifest --path ./mirror
 ```
 
+Verify a manually downloaded and extracted snapshot:
+
+```bash
+uv run python nvd-mirror.py --verify-manifest --path ./mirror
+```
+
 Show current checkpoint status:
 
 ```bash
@@ -131,7 +137,7 @@ verbose: saved file cves/2025/CVE-2025-0001.json
       page-000000.json
 ```
 
-`manifest.json` records snapshot metadata, CVE counts, and checksums for completed mirrors. `checkpoint.json` is used for resuming interrupted runs. It is removed after successful completion.
+`manifest.json` records snapshot metadata, CVE counts, and checksums for completed mirrors. Use `--verify-manifest` after manually downloading and extracting a snapshot to confirm that `cves/` and `state/state.json` still match the manifest. `checkpoint.json` is used for resuming interrupted runs. It is removed after successful completion.
 
 ## Source Layout
 

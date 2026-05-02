@@ -341,6 +341,75 @@ def test_manifest_command_requires_completed_init(tmp_path: Path, capsys):
     assert "init must complete" in captured.err
 
 
+def test_verify_manifest_command_accepts_matching_manifest(tmp_path: Path, capsys):
+    state_dir = tmp_path / "state"
+    state_dir.mkdir(parents=True)
+    (state_dir / "state.json").write_text(
+        json.dumps(
+            {
+                "init_completed": True,
+                "next_sync_from": "2026-04-19T02:00:00.000Z",
+            },
+        ),
+        encoding="utf-8",
+    )
+    cve_dir = tmp_path / "cves" / "2026"
+    cve_dir.mkdir(parents=True)
+    (cve_dir / "CVE-2026-1001.json").write_text(
+        json.dumps({"id": "CVE-2026-1001"}, sort_keys=True),
+        encoding="utf-8",
+    )
+
+    nvd_mirror.main(
+        ["--manifest", "--path", str(tmp_path)],
+        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc),
+    )
+    capsys.readouterr()
+
+    exit_code = nvd_mirror.main(["--verify-manifest", "--path", str(tmp_path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "manifest verified" in captured.out
+
+
+def test_verify_manifest_command_reports_mismatched_files(tmp_path: Path, capsys):
+    state_dir = tmp_path / "state"
+    state_dir.mkdir(parents=True)
+    (state_dir / "state.json").write_text(
+        json.dumps(
+            {
+                "init_completed": True,
+                "next_sync_from": "2026-04-19T02:00:00.000Z",
+            },
+        ),
+        encoding="utf-8",
+    )
+    cve_dir = tmp_path / "cves" / "2026"
+    cve_dir.mkdir(parents=True)
+    cve_path = cve_dir / "CVE-2026-1002.json"
+    cve_path.write_text(
+        json.dumps({"id": "CVE-2026-1002"}, sort_keys=True),
+        encoding="utf-8",
+    )
+    nvd_mirror.main(
+        ["--manifest", "--path", str(tmp_path)],
+        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc),
+    )
+    cve_path.write_text(
+        json.dumps({"id": "CVE-2026-1002", "modified": True}, sort_keys=True),
+        encoding="utf-8",
+    )
+    capsys.readouterr()
+
+    exit_code = nvd_mirror.main(["--verify-manifest", "--path", str(tmp_path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "manifest verification failed" in captured.out
+    assert "files.cves_sha256 mismatch" in captured.out
+
+
 def test_init_command_resumes_saved_init_checkpoint(tmp_path: Path):
     checkpoint_dir = tmp_path / "state"
     checkpoint_dir.mkdir(parents=True)

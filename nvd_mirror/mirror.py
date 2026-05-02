@@ -9,7 +9,7 @@ import requests
 
 from .api import NvdApiError
 from .constants import INITIAL_PUBLISH_START, MAX_WINDOW_DAYS
-from .manifest import write_manifest
+from .manifest import verify_manifest, write_manifest
 from .storage import (
     clear_checkpoint,
     clear_working_dir,
@@ -320,6 +320,16 @@ class MirrorRunner:
         path = write_manifest(self.config, self.now_fn())
         self.output(f"wrote manifest {path}")
         return 0
+
+    def run_verify_manifest(self) -> int:
+        result = verify_manifest(self.config)
+        if result.ok:
+            path = self.config.mirror_path / "manifest.json"
+            self.output(f"manifest verified {path}")
+            return 0
+        for error in result.errors:
+            self.output(f"manifest verification failed: {error}")
+        return 1
 
     @staticmethod
     def _update_avg(previous: float, current: float) -> float:

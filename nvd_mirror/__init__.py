@@ -22,7 +22,13 @@ from .constants import (
     INITIAL_PUBLISH_START,
     MAX_WINDOW_DAYS,
 )
-from .manifest import build_manifest, manifest_file, write_manifest
+from .manifest import (
+    ManifestVerification,
+    build_manifest,
+    manifest_file,
+    verify_manifest,
+    write_manifest,
+)
 from .mirror import MirrorRunner
 from .storage import (
     atomic_write_json,
@@ -56,6 +62,7 @@ __all__ = [
     "INITIAL_PUBLISH_START",
     "MAX_WINDOW_DAYS",
     "AppConfig",
+    "ManifestVerification",
     "MirrorRunner",
     "NvdApiClient",
     "NvdApiError",
@@ -92,6 +99,7 @@ __all__ = [
     "update_state",
     "utc_now",
     "validate_config",
+    "verify_manifest",
     "working_dir",
     "write_manifest",
 ]

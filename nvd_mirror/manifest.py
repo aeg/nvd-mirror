@@ -1,16 +1,23 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from .storage import atomic_write_json, load_state
-from .time_utils import isoformat_z
+from .storage import atomic_write_json, load_json, load_state
+from .time_utils import isoformat_z, parse_datetime
 
 if TYPE_CHECKING:
     from datetime import datetime
     from pathlib import Path
 
     from .config import AppConfig
+
+
+@dataclass
+class ManifestVerification:
+    ok: bool
+    errors: list[str]
 
 
 def manifest_file(config: AppConfig) -> Path:
@@ -86,3 +93,51 @@ def write_manifest(config: AppConfig, generated_at: datetime) -> Path:
     path = manifest_file(config)
     atomic_write_json(path, build_manifest(config, generated_at))
     return path
+
+
+def verify_manifest(config: AppConfig) -> ManifestVerification:
+    path = manifest_file(config)
+    if not path.exists():
+        return ManifestVerification(
+            ok=False,
+            errors=[f"manifest file does not exist: {path}"],
+        )
+
+    expected = load_json(path)
+    actual = build_manifest(config, generated_at=_manifest_generated_at(expected))
+    errors = []
+
+    if expected.get("schema_version") != actual["schema_version"]:
+        errors.append(
+            "schema_version mismatch: "
+            f"expected {expected.get('schema_version')!r}, "
+            f"actual {actual['schema_version']!r}",
+        )
+
+    for key in (
+        "cve_count",
+        "years",
+        "total_size_bytes",
+        "cves_sha256",
+        "state_sha256",
+    ):
+        expected_value = expected.get("files", {}).get(key)
+        actual_value = actual["files"][key]
+        if expected_value != actual_value:
+            errors.append(
+                f"files.{key} mismatch: "
+                f"expected {expected_value!r}, actual {actual_value!r}",
+            )
+
+    expected_state = expected.get("state")
+    if expected_state != actual["state"]:
+        errors.append("state mismatch")
+
+    return ManifestVerification(not errors, errors)
+
+
+def _manifest_generated_at(manifest: dict[str, Any]) -> datetime:
+    generated_at = manifest.get("generated_at")
+    if not isinstance(generated_at, str):
+        generated_at = "1970-01-01T00:00:00.000Z"
+    return parse_datetime(generated_at)
