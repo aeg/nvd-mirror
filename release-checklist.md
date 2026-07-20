@@ -5,8 +5,8 @@ Use this checklist before publishing `nvd-mirror.py` as a GitHub repository.
 ## Files
 
 - [ ] Copy `nvd-mirror.py` into the repository root.
-- [ ] Copy `requirements.txt`.
-- [ ] Copy `requirements-dev.txt`.
+- [ ] Copy `pyproject.toml`.
+- [ ] Copy `uv.lock`.
 - [ ] Copy `nvd-mirror.example.toml`.
 - [ ] Copy `tests/test_nvd_mirror.py`.
 - [ ] Add or copy `LICENSE`.
@@ -26,22 +26,23 @@ Use this checklist before publishing `nvd-mirror.py` as a GitHub repository.
 Run:
 
 ```bash
-python3 -m py_compile nvd-mirror.py
-python3 nvd-mirror.py --help
-python3 -m pytest tests/test_nvd_mirror.py
+uv sync --frozen --group dev
+uv run --frozen python -m py_compile nvd-mirror.py
+uv run --frozen python nvd-mirror.py --help
+uv run --frozen --group dev pytest tests/test_nvd_mirror.py
 ```
 
 Optional smoke tests:
 
 ```bash
-python3 nvd-mirror.py --init --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
-python3 nvd-mirror.py --status --path /tmp/nvd-mirror-test
+uv run --frozen python nvd-mirror.py --init --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
+uv run --frozen python nvd-mirror.py --status --path /tmp/nvd-mirror-test
 ```
 
 If the init completes:
 
 ```bash
-python3 nvd-mirror.py --sync --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
+uv run --frozen python nvd-mirror.py --sync --path /tmp/nvd-mirror-test --results-per-page 100 --verbose
 ```
 
 ## Suggested Defaults
