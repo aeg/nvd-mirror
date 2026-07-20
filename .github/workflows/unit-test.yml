@@ -38,7 +38,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync --frozen --group dev
+        run: uv sync --locked --group dev
 
       - name: Run unit tests
-        run: uv run --frozen --group dev pytest tests/test_nvd_mirror.py
+        run: uv run --locked --group dev pytest tests/test_nvd_mirror.py
