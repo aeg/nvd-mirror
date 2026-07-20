@@ -31,11 +31,14 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: requirements-dev.txt
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
       - name: Install dependencies
-        run: python -m pip install -r requirements-dev.txt
+        run: uv sync --frozen --group dev
 
       - name: Run unit tests
-        run: python -m pytest tests/test_nvd_mirror.py
+        run: uv run --frozen --group dev pytest tests/test_nvd_mirror.py

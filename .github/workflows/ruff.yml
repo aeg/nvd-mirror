@@ -26,10 +26,10 @@ jobs:
           python-version: "3.13"
 
       - name: Install dependencies
-        run: uv sync --group dev
+        run: uv sync --frozen --group dev
 
       - name: Run Ruff check
-        run: uv run --group dev ruff check --config ruff.toml .
+        run: uv run --frozen --group dev ruff check --config ruff.toml .
 
       - name: Run Ruff format check
-        run: uv run --group dev ruff format --check --config ruff.toml .
+        run: uv run --frozen --group dev ruff format --check --config ruff.toml .

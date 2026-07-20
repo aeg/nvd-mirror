@@ -31,8 +31,8 @@ Leave empty unless a documentation page is published.
 
 - `nvd-mirror.py`
 - `README.md`
-- `requirements.txt`
-- `requirements-dev.txt`
+- `pyproject.toml`
+- `uv.lock`
 - `nvd-mirror.example.toml`
 - `tests/test_nvd_mirror.py`
 - `.gitignore`
