@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def parse_datetime(value: str) -> datetime:
@@ -12,13 +12,13 @@ def parse_datetime(value: str) -> datetime:
         value = value[:-1] + "+00:00"
     dt = datetime.fromisoformat(value)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def isoformat_z(value: datetime) -> str:
     return (
-        value.astimezone(timezone.utc)
+        value.astimezone(UTC)
         .isoformat(timespec="milliseconds")
         .replace(
             "+00:00",
