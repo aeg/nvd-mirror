@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -73,7 +73,7 @@ def build_page(total_results, vulnerabilities):
 
 def iso(dt: datetime) -> str:
     return (
-        dt.astimezone(timezone.utc)
+        dt.astimezone(UTC)
         .isoformat(timespec="milliseconds")
         .replace(
             "+00:00",
@@ -83,7 +83,7 @@ def iso(dt: datetime) -> str:
 
 
 def test_init_command_saves_cves_and_records_state(tmp_path: Path):
-    started_at = datetime(1999, 1, 2, 0, 0, tzinfo=timezone.utc)
+    started_at = datetime(1999, 1, 2, 0, 0, tzinfo=UTC)
     params = {
         "pubStartDate": "1999-01-01T00:00:00.000Z",
         "pubEndDate": "1999-01-02T00:00:00.000Z",
@@ -130,7 +130,7 @@ def test_init_command_saves_cves_and_records_state(tmp_path: Path):
 
 
 def test_verbose_mode_reports_request_and_saved_count(tmp_path: Path, capsys):
-    started_at = datetime(1999, 1, 2, 0, 0, tzinfo=timezone.utc)
+    started_at = datetime(1999, 1, 2, 0, 0, tzinfo=UTC)
     params = {
         "pubStartDate": "1999-01-01T00:00:00.000Z",
         "pubEndDate": "1999-01-02T00:00:00.000Z",
@@ -185,7 +185,7 @@ def test_verbose_mode_reports_exception_details(tmp_path: Path, capsys):
             "1999-01-02T00:00:00Z",
         ],
         api_client_factory=FailingApiClient,
-        now_fn=lambda: datetime(1999, 1, 2, 0, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(1999, 1, 2, 0, 0, tzinfo=UTC),
     )
 
     captured = capsys.readouterr()
@@ -225,7 +225,7 @@ def test_verbose_mode_retries_transient_chunked_response_error(
             "0",
         ],
         api_client_factory=lambda config: flaky_client,
-        now_fn=lambda: datetime(1999, 1, 2, 0, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(1999, 1, 2, 0, 0, tzinfo=UTC),
     )
 
     captured = capsys.readouterr()
@@ -277,7 +277,7 @@ def test_sync_command_uses_saved_sync_point(tmp_path: Path):
             "2026-04-19T02:00:00Z",
         ],
         api_client_factory=lambda config: FakeApiClient(config, pages),
-        now_fn=lambda: datetime(2026, 4, 19, 2, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(2026, 4, 19, 2, 0, tzinfo=UTC),
     )
 
     assert exit_code == 0
@@ -308,7 +308,7 @@ def test_manifest_command_writes_completed_mirror_metadata(tmp_path: Path, capsy
 
     exit_code = nvd_mirror.main(
         ["--manifest", "--path", str(tmp_path)],
-        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=UTC),
     )
 
     captured = capsys.readouterr()
@@ -362,7 +362,7 @@ def test_verify_manifest_command_accepts_matching_manifest(tmp_path: Path, capsy
 
     nvd_mirror.main(
         ["--manifest", "--path", str(tmp_path)],
-        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=UTC),
     )
     capsys.readouterr()
 
@@ -394,7 +394,7 @@ def test_verify_manifest_command_reports_mismatched_files(tmp_path: Path, capsys
     )
     nvd_mirror.main(
         ["--manifest", "--path", str(tmp_path)],
-        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(2026, 5, 2, 12, 0, tzinfo=UTC),
     )
     cve_path.write_text(
         json.dumps({"id": "CVE-2026-1002", "modified": True}, sort_keys=True),
@@ -456,7 +456,7 @@ def test_init_command_resumes_saved_init_checkpoint(tmp_path: Path):
             "2026-04-19T00:00:00Z",
         ],
         api_client_factory=lambda config: FakeApiClient(config, pages),
-        now_fn=lambda: datetime(2026, 4, 19, 0, 1, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(2026, 4, 19, 0, 1, tzinfo=UTC),
     )
 
     assert exit_code == 0
@@ -515,7 +515,7 @@ def test_init_resume_uses_checkpoint_start_index(tmp_path: Path):
             "2026-04-19T00:00:00Z",
         ],
         api_client_factory=lambda config: FakeApiClient(config, pages),
-        now_fn=lambda: datetime(2026, 4, 19, 0, 1, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(2026, 4, 19, 0, 1, tzinfo=UTC),
     )
 
     assert exit_code == 0
@@ -575,7 +575,7 @@ def test_init_pages_until_all_results_are_saved(tmp_path: Path):
             "1999-01-02T00:00:00Z",
         ],
         api_client_factory=lambda config: fake_client,
-        now_fn=lambda: datetime(1999, 1, 2, 0, 0, tzinfo=timezone.utc),
+        now_fn=lambda: datetime(1999, 1, 2, 0, 0, tzinfo=UTC),
     )
 
     assert exit_code == 0
